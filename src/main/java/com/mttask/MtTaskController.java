@@ -5,6 +5,8 @@ import com.mttask.model.BookDetails;
 import com.mttask.threads.WriteToFile;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +19,7 @@ import java.util.concurrent.Future;
  */
 public class MtTaskController {
 
-    ExecutorService executor = Executors.newFixedThreadPool(10);
+    static ExecutorService executor = Executors.newFixedThreadPool(10);
     static List<Future<String>> returnValList = new ArrayList<Future<String>>();
     volatile int fileCount =0;
 
@@ -25,21 +27,23 @@ public class MtTaskController {
 
         CSVHelper reader = new CSVHelper(10);
         try {
+            System.out.println(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Timestamp(System.currentTimeMillis())));
             reader.readAndExecute("/Users/abhimanyus/Desktop/Nonsense/OfficeTasks/MultiThreading1/Multithreading_Task1_Books.csv");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         for(Future<String> returnVal : returnValList){
-            System.out.println(returnVal.get());
+//            System.out.println(returnVal.get());
         }
-
+        executor.shutdownNow();
+        System.out.println(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Timestamp(System.currentTimeMillis())));
     }
 
 
     public void spawnThreadsForWrite(List<BookDetails> listOfBooks) {
         fileCount ++;
-        WriteToFile wtf = new WriteToFile("Books" +fileCount + ".txt",listOfBooks);
+        WriteToFile wtf = new WriteToFile("/Users/abhimanyus/Desktop/Nonsense/OfficeTasks/MultiThreading1/Books" +fileCount + ".txt",listOfBooks);
         Future<String> returnVals = executor.submit(wtf);
         returnValList.add(returnVals);
 
